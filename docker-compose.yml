@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+  
+  load_data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    command: python load_bd.py   # Запускаем скрипт для загрузки данных
+  
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - load_data  # Зависим от загрузки данных
+
+volumes:
+  pgdata:
